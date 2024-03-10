@@ -1,0 +1,27 @@
+What to do with each device is listed here
+
+--PrimaryGranter
+  Add each item from first on the list to the final gun
+  Clear inv on
+--KillstreakGranter
+  Add each item
+  Clear inv off
+--Conditional buttons
+  Match KillStreak Granters items
+--Hud device KillCounter
+  Advanced >> Widget >> Use the imported UASSET widget
+  Advanced >> Widget >> Placement >> Custom >> Top Left Anchor
+  Set display time to not go away and remove anims
+  Note: For the imported UASSET you may have to rebuild the view model(Just copy it exactly)
+        Otherwise customize to your liking
+--KillStreak Hud device
+    Advanced >> Widget >> Use the imported UASSET for each one
+    Advanced >> Widget >> Placement >> Custom >> Top Left Anchor
+    it might not be in Widgets
+
+--Rest of the devices is fairly self explanatory dm for assistance
+
+--IMPORTANT--
+When importing UASSETs you cant use UEFNs import feature, but you have to drag and drop them
+into the Content folder of your project through file manager.
+
