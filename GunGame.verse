@@ -19,6 +19,8 @@ GunGame := class(creative_device):
     @editable
     var KillStreakGranter : item_granter_device = item_granter_device{}
     @editable
+    var Hider : []trigger_device = array{}
+    @editable
     var EndGameDevice : end_game_device = end_game_device{}
     @editable
     var KillStreakCheckers : []conditional_button_device = array{}
@@ -53,20 +55,27 @@ GunGame := class(creative_device):
                     Print("User is the key and this it is paired to {Values}")
                 }
                 spawn:
-                    UpdateUI(Player)
+                    UpdateUI(Player) 
+                
                 FortCharacter.EliminatedEvent().Subscribe(OnPlayerEliminated)
-                if(AgentToBeGranted := FortCharacter.GetAgent[])  {
+                if(AgentToBeGranted := FortCharacter.GetAgent[]){
+                spawn{KillStreakUI(AgentToBeGranted,true,0)}  
                 GrantWeapon(AgentToBeGranted, WeaponTier)
                 }
 
     OnPlayerAdded(Player:player):void=
         if:
             FortCharacter := Player.GetFortCharacter[]
+            FortCharacterAgent := FortCharacter.GetAgent[]
             set PlayerMap[Player] = 0
+            set KillStreakDictionary[Player]=0
             WeaponTier := PlayerMap[Player]
         then:
             FortCharacter.EliminatedEvent().Subscribe(OnPlayerEliminated)
             GrantWeapon(Player, WeaponTier)
+            spawn:
+                UpdateUI(Player)
+            spawn{KillStreakUI(FortCharacterAgent,true,0)}
 
     GrantWeapon(Agent : agent, WeaponTier : int) : void=
             TestGranter.SetNextItem(WeaponTier)
@@ -78,6 +87,14 @@ GunGame := class(creative_device):
          EliminatingAgent := FortCharacter.GetAgent[],EliminatedAgent := Result.EliminatedCharacter.GetAgent[]):
             if(set KillStreakDictionary[EliminatingAgent] += 1,set KillStreakDictionary[EliminatedAgent] = 0){
                 KillStreakChecker(EliminatingAgent)
+                for(x := 1..3){
+                if(Cat := Hider[x]){
+                Cat.Trigger(EliminatedAgent)
+                }
+                }
+            }
+            if(ShowFirst := KillStreakHUD[0]){
+                ShowFirst.Show(EliminatedAgent)
             }
             PromotePlayer(EliminatingAgent)
 
@@ -104,7 +121,8 @@ GunGame := class(creative_device):
             }
         }   
         if(Alert := KillStreakerNums.Find[StoredX]){
-            spawn{KillStreakUI(Agent,FirstTime,Alert)}
+            Alert2 := Alert + 1
+            spawn{KillStreakUI(Agent,FirstTime,Alert2)}
         }
         if( NewStored := KillStreakerNums.Find[StoredX],Checker := KillStreakCheckers[NewStored]){
             Check := Checker.GetItemCount(Agent,NewStored)
@@ -146,10 +164,13 @@ GunGame := class(creative_device):
         }
     KillStreakUI(Agent : agent, ShouldShow : logic, index : int)<suspends>:void=
         if(Alert := KillStreakHUD[index],ShouldShow?){
+            if(llama := Hider[index-1]){
+                llama.Trigger(Agent)
+            }
+            
             Alert.Show(Agent)
             Sleep(4.0)
+            # If the double grant bug persists remove this line and the one above
             KillStreakGranter.GrantItem(Agent)
         }
-        
-    
 
